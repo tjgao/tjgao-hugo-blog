@@ -10,3 +10,4 @@ theme = "hugo-theme-minos"
 [params]
 	smartToc = true
 	disqusShortname = "tiejun"
+	googleAnalytics = "UA-33645611-1"
