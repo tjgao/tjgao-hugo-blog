@@ -6,3 +6,7 @@ theme = "hugo-theme-minos"
 [Taxonomies]
 	tag = "tags"
 	category = "categories"
+
+[params]
+	smartToc = true
+	disqusShortname = "tiejun"
