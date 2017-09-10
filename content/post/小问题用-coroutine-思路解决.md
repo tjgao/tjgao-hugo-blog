@@ -208,3 +208,65 @@ main()
 
 是不是清楚多了？ 
 
+Update:
+
+使用 asyncio 的 event loop 是这样的。为了驱动我的 coroutine，我不得不使用了两个信号量，一个 Condition，一个 Event，这样他们才会有序的合作跑下去。
+
+```python
+import asyncio
+
+input = [
+"a = 3"
+, "b = 2 + 4"
+, "c = a"
+, "d = b + 7"
+, "A = b + c + d"
+, "f = g"
+, "g = 1 + 2 + 3"
+, "h = i + A + lemon"
+, "lemon = k + lima"
+, "i = A + 5"
+, "k = a + b"
+, "lima = k + k"	
+]
+ 
+variable_map = {}
+cond = asyncio.Condition()
+ev = asyncio.Event()
+
+async def value(num):
+	try:
+		return int(num)
+	except:
+		while True:
+			result = variable_map.get(num)
+			if result is None:
+				ev.set()
+				with await cond:
+					await cond.wait()
+			else: return result
+	finally:
+		with await cond:
+			cond.notify_all()
+
+async def calc(left, right):
+	result = 0
+	for r in right:
+		result += await value(r)		
+	variable_map[left] = result
+	print('===> ' + left + ' = ' + str(result))
+	ev.set()
+
+async def main():
+	for line in input:
+		print(line)
+		left = line.split('=')[0].strip()
+		right = [i.strip() for i in line.split('=')[1].split('+')]
+		asyncio.ensure_future(calc(left, right))
+		await ev.wait()
+		ev.clear()
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+loop.close()
+```
