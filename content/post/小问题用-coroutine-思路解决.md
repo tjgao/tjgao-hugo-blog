@@ -146,7 +146,7 @@ int main() {
 
 最近接触了一些 python 的 coroutine 的思路，发现这个问题用 generator/coroutine 的路子来考虑就很直观自然。每次给你个东西求值，你能求就求，不能就算了，不行就 yield 投降，就直接躺地上不干了。最重要的是下次如果某变量求值成功了，再继续这个未完成的 generator/coroutine 就行了。
 
-在 async programming 中总会有个 event loop 来驱动所有的 coroutine，我们这个就自己轮一个简单的 loop 就行了。上 python 代码：
+在 async programming 中总会有个 event loop 来驱动所有的 coroutine，我们这个就自己轮一个简单的 loop 就行了。上 python [代码](http://ideone.com/sVtEUo)：
 
 ```python
 input = [
@@ -210,7 +210,7 @@ main()
 
 Update:
 
-使用 asyncio 的 event loop 是这样的。为了驱动我的 coroutine，我不得不使用了两个信号量，一个 Condition，一个 Event，这样他们才会有序的合作跑下去。
+使用 asyncio 的 event loop 是这样的。为了驱动我的 coroutine，我不得不使用了两个信号量，一个 Condition，一个 Event，这样他们才会有序的合作跑下去。Condition 是为了通知所有算了一半的 coroutine，现在有新情况了，再尝试。Event 是为了让主 coroutine 在完成了当前行的计算或者确认无法完成当前行的计算时，继续读入一行。想运行一把这个代码可以看[这里](https://ideone.com/FEKGRj)
 
 ```python
 import asyncio
